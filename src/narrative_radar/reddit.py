@@ -1,10 +1,18 @@
-"""Reddit collector — official OAuth API, free script-app tier.
+"""Reddit collector — official OAuth API, free tier.
 
-Anonymous JSON endpoints are hard-walled (403 / interstitial, verified
-2026-07); the supported route is a script app (reddit.com/prefs/apps) and
-the application-only ``client_credentials`` grant, which is all a read-only
-public-listing collector needs. Rate budget here is ~2 requests per
-snapshot against a 100/min allowance.
+Access reality (2026): anonymous JSON endpoints are hard-walled (403 /
+interstitial, verified 2026-07), and since Reddit's late-2025 Responsible
+Builder Policy, creating an OAuth app at reddit.com/prefs/apps requires
+PRIOR approval via the Data API access request form
+(support.reddithelp.com/hc/en-us/requests/new?ticket_form_id=14868593862164,
+linked from the Reddit Data API Wiki). This module is ready for the day
+the ticket is approved; until then the radar runs on its other sources by
+design. No workarounds (RSS/scraping) are implemented on purpose — the
+policy covers all data access, and this project stays inside it.
+
+Once approved: script app + application-only ``client_credentials`` grant,
+which is all a read-only public-listing collector needs. Rate budget here
+is ~2 requests per snapshot against a 100/min allowance.
 
 Env: REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, REDDIT_USER_AGENT
 (user agent per Reddit API rules, e.g. "windows:cs-narrative-radar:v0.1

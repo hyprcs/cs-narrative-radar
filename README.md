@@ -68,8 +68,10 @@ pytest -q                      # hermetic: synthetic fixtures only
 # parse a folder of saved HLTV match pages into mention records
 radar parse-hltv --dir path/to/match_pages --entities data/sample_entities.csv --out mentions.jsonl
 
-# snapshot r/GlobalOffensive (needs a free Reddit script app; set
-# REDDIT_CLIENT_ID / REDDIT_CLIENT_SECRET / REDDIT_USER_AGENT)
+# snapshot r/GlobalOffensive (needs an approved Reddit script app — since
+# the late-2025 Responsible Builder Policy, app creation requires a Data
+# API access ticket first; see src/narrative_radar/reddit.py docstring.
+# Set REDDIT_CLIENT_ID / REDDIT_CLIENT_SECRET / REDDIT_USER_AGENT)
 radar reddit-snapshot --subreddit GlobalOffensive --out reddit.jsonl
 radar reddit-mentions --snapshot reddit.jsonl --entities data/sample_entities.csv --out mentions.jsonl
 
