@@ -1,0 +1,35 @@
+# Starter lexicon. Columns:
+#   entity_id  stable key you choose (team:x / player:x convention)
+#   kind       team | player
+#   canonical  display name
+#   aliases    pipe-separated extra spellings (canonical is always matched)
+#   ambiguous  1 = tag collides with an English word -> matched CASE-SENSITIVELY
+#              exactly as written here (Spirit yes, spirit no). Pure lowercase
+#              common-word tags (device, magic, rain, hate...) cannot be gated
+#              by case at all -- leave them OUT of text aliases and let the
+#              id-resolved link layer (hltv_id) carry them. That asymmetry is
+#              deliberate; see README design decision 3.
+#   hltv_id    optional numeric id -> enables unambiguous /player/<id>/ or
+#              /team/<id>/ link resolution
+entity_id,kind,canonical,aliases,ambiguous,hltv_id
+team:spirit,team,Team Spirit,Spirit,1,
+team:vitality,team,Vitality,Team Vitality,0,
+team:navi,team,Natus Vincere,NAVI|NaVi,0,
+team:faze,team,FaZe,FaZe Clan,0,
+team:g2,team,G2,G2 Esports,0,
+team:mouz,team,MOUZ,mousesports,0,
+team:falcons,team,Falcons,Team Falcons,1,
+team:astralis,team,Astralis,,0,
+team:liquid,team,Liquid,Team Liquid,1,
+team:mongolz,team,The MongolZ,MongolZ,0,
+team:nip,team,Ninjas in Pyjamas,NiP,1,
+team:m80,team,M80,,0,
+team:furia,team,FURIA,,0,
+player:zywoo,player,ZywOo,,0,11893
+player:s1mple,player,s1mple,,0,7998
+player:donk,player,donk,,1,21167
+player:niko,player,NiKo,,1,
+player:m0nesy,player,m0NESY,,0,
+player:sh1ro,player,sh1ro,,0,
+player:b1t,player,b1t,,0,
+player:hate,player,hate,,1,16163

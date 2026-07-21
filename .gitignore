@@ -1,0 +1,12 @@
+__pycache__/
+*.egg-info/
+.pytest_cache/
+build/
+dist/
+.venv/
+venv/
+# local data tapes -- never commit collected community data
+*.jsonl
+index.json
+data/*.html
+!data/sample_entities.csv
