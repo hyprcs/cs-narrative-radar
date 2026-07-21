@@ -138,8 +138,10 @@ def lifecycle_state(zs: list[float | None]) -> str:
 
 
 def build_index(mentions, baseline_days: int = 28,
-                as_of: str | None = None) -> dict:
-    """Per-entity summary as of the latest (or given) date."""
+                as_of: str | None = None,
+                names: dict[str, str] | None = None) -> dict:
+    """Per-entity summary as of the latest (or given) date. `names` maps
+    entity_id -> display name (attached as 'name' when provided)."""
     shares = daily_shares(mentions)
     breadth = daily_breadth(mentions)
     all_dates = sorted({d for s in shares.values() for d in s})
@@ -155,6 +157,7 @@ def build_index(mentions, baseline_days: int = 28,
     for ent, series in shares.items():
         zs = [abnormal_z(series, d, baseline_days) for d in window]
         entities[ent] = {
+            "name": (names or {}).get(ent, ent),
             "share": round(series.get(as_of, 0.0), 6),
             "breadth": breadth.get(ent, {}).get(as_of, 0),
             "z": None if zs[-1] is None else round(zs[-1], 2),

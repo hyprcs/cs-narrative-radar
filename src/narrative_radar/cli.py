@@ -77,8 +77,13 @@ def _cmd_reddit_mentions(args) -> int:
 
 
 def _cmd_index(args) -> int:
+    names = None
+    if args.entities:
+        lex = EntityLexicon.from_csv(args.entities)
+        names = {e.entity_id: f"{e.canonical} ({e.kind})"
+                 for e in lex.entities.values()}
     idx = build_index(read_jsonl(args.mentions), baseline_days=args.baseline_days,
-                      as_of=args.as_of)
+                      as_of=args.as_of, names=names)
     with open(args.out, "w", encoding="utf-8") as f:
         json.dump(idx, f, indent=1, ensure_ascii=False)
     print(f"index as of {idx['as_of']}: {len(idx['entities'])} entities -> {args.out}")
@@ -93,13 +98,15 @@ def _cmd_brief(args) -> int:
     print("## hottest (abnormal attention)")
     for ent, row in ents[:args.top]:
         z = "-" if row["z"] is None else f"{row['z']:+.1f}"
-        print(f"  {ent:24s} z={z:>6}  share={row['share']:.3f}  "
+        label = row.get("name") or ent
+        print(f"  {label:28.28s} z={z:>6}  share={row['share']:.3f}  "
               f"breadth={row['breadth']:>4}  [{row['state']}]")
     rising = [(e, r) for e, r in ents if r["state"] in ("emerging", "peaking")]
     if rising:
         print("\n## in-play narratives (emerging/peaking)")
         for ent, row in rising[:args.top]:
-            print(f"  {ent:24s} [{row['state']}] z={row['z']}")
+            print(f"  {(row.get('name') or ent):28.28s} [{row['state']}] "
+                  f"z={row['z']}")
     return 0
 
 
@@ -131,6 +138,8 @@ def main(argv=None) -> int:
     p.add_argument("--out", default="index.json")
     p.add_argument("--baseline-days", type=int, default=28)
     p.add_argument("--as-of")
+    p.add_argument("--entities", help="lexicon CSV: attaches display names "
+                                      "to index rows (briefs become readable)")
     p.set_defaults(fn=_cmd_index)
 
     p = sub.add_parser("brief", help="print the narrative brief")
