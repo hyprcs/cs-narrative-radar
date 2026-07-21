@@ -42,6 +42,20 @@ def test_link_resolution_beats_word_collision():
     assert LEX.resolve_hltv_href("/player/999999/nobody") is None
 
 
+def test_all_caps_ambiguous_is_also_excluded_from_text():
+    from narrative_radar.entities import Entity, EntityLexicon
+
+    lex = EntityLexicon([
+        Entity("player:just", "player", "JUST", (), ambiguous=True,
+               hltv_id=42),
+        Entity("team:but", "team", "BUT", (), ambiguous=True),
+    ])
+    # emphasis-caps in comments must not credit the entities
+    assert lex.resolve_text("JUST run it BUT slower") == []
+    # the id layer still works
+    assert lex.resolve_hltv_href("/player/42/just").entity_id == "player:just"
+
+
 def test_csv_roundtrip(tmp_path):
     p = tmp_path / "e.csv"
     p.write_text(

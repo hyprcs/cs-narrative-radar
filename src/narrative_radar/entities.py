@@ -47,11 +47,15 @@ class EntityLexicon:
                 a = a.strip()
                 if not a:
                     continue
-                if e.ambiguous and a == a.lower():
-                    # The gate for ambiguous aliases is case-sensitivity; an
-                    # all-lowercase tag ('hate', 'device', 'magic') can never
-                    # be case-gated, so it does NOT text-match at all — the
-                    # id-resolved link layer carries it (design decision 3).
+                if e.ambiguous and (a == a.lower() or a == a.upper()):
+                    # The gate for ambiguous aliases is case-sensitivity,
+                    # which is meaningless at BOTH case extremes: 'hate' /
+                    # 'device' can never be gated, and ALL-CAPS names like
+                    # 'JUST' or 'BUT' collide with emphasis-caps in comments
+                    # (measured on 748k real posts). Neither text-matches;
+                    # the id-resolved link layer carries them (decision 3).
+                    # Only MixedCase ambiguous aliases (NiKo, Spirit, NiP)
+                    # are case-gateable.
                     continue
                 key = a if e.ambiguous else a.lower()
                 self._alias_owner[key] = e
