@@ -17,9 +17,15 @@ aggregate pipelines (see README ethics note).
 from __future__ import annotations
 
 import hashlib
+import importlib.util
 from dataclasses import dataclass, field
 
 from bs4 import BeautifulSoup
+
+# lxml is ~10x faster than html.parser and the difference is not cosmetic:
+# recent big-event match pages carry 1000+ comment posts and stdlib parsing
+# of a 10k-page corpus runs into hours. Optional dependency (.[fast]).
+_PARSER = "lxml" if importlib.util.find_spec("lxml") else "html.parser"
 
 
 @dataclass
@@ -58,7 +64,7 @@ def _hash_author(href: str | None) -> str:
 
 def parse_match_comments(html: str) -> MatchThread | None:
     """The match page's comment thread, or None when the block is absent."""
-    soup = BeautifulSoup(html or "", "html.parser")
+    soup = BeautifulSoup(html or "", _PARSER)
     box = soup.select_one(".match-comments")
     if box is None:
         return None

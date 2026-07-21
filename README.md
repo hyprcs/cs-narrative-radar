@@ -62,7 +62,7 @@ math never touches a scraper.
 ## Quickstart
 
 ```bash
-pip install -e .[dev]
+pip install -e .[dev,fast]     # 'fast' = lxml, ~10x quicker on big threads
 pytest -q                      # hermetic: synthetic fixtures only
 
 # parse a folder of saved HLTV match pages into mention records

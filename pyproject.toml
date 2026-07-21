@@ -17,6 +17,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest>=7.4"]
+fast = ["lxml>=5.0"]   # ~10x HTML parse speedup on big comment threads
 
 [project.scripts]
 radar = "narrative_radar.cli:main"
