@@ -16,13 +16,32 @@ def _cmd_parse_hltv(args) -> int:
 
     lex = EntityLexicon.from_csv(args.entities)
     files = sorted(glob.glob(os.path.join(args.dir, "*.html")))
-    n_threads = n_posts = n_mentions = 0
+    # incremental mode: --state remembers {basename: size} of parsed pages so
+    # a daily pipeline appends only NEW pages to the mention tape instead of
+    # re-chewing (and double-counting) the whole corpus
+    state = {}
+    if args.state and os.path.exists(args.state):
+        try:
+            with open(args.state, encoding="utf-8") as f:
+                state = json.load(f)
+        except (OSError, json.JSONDecodeError):
+            state = {}
+    n_threads = n_posts = n_mentions = n_skipped = 0
     for path in files:
+        base = os.path.basename(path)
+        try:
+            size = os.path.getsize(path)
+        except OSError:
+            continue
+        if args.state and state.get(base) == size:
+            n_skipped += 1
+            continue
         try:
             with open(path, encoding="utf-8", errors="ignore") as f:
                 thread = parse_match_comments(f.read())
         except OSError:
             continue
+        state[base] = size          # parsed (or empty): don't revisit
         if thread is None or not thread.posts:
             continue
         recs = mentions_from_thread(thread, lex)
@@ -30,8 +49,12 @@ def _cmd_parse_hltv(args) -> int:
         n_threads += 1
         n_posts += thread.n_posts
         n_mentions += len(recs)
+    if args.state:
+        with open(args.state, "w", encoding="utf-8") as f:
+            json.dump(state, f)
     print(f"parsed {n_threads} threads / {n_posts} posts from "
-          f"{len(files)} pages -> {n_mentions} mentions ({args.out})")
+          f"{len(files)} pages ({n_skipped} already in state) -> "
+          f"{n_mentions} mentions ({args.out})")
     return 0
 
 
@@ -88,6 +111,8 @@ def main(argv=None) -> int:
     p.add_argument("--dir", required=True)
     p.add_argument("--entities", required=True)
     p.add_argument("--out", default="mentions.jsonl")
+    p.add_argument("--state", help="json path remembering parsed pages; "
+                                   "makes repeat runs incremental")
     p.set_defaults(fn=_cmd_parse_hltv)
 
     p = sub.add_parser("reddit-snapshot", help="append one OAuth listing snapshot")
